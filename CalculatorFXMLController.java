@@ -58,7 +58,7 @@ public class CalculatorFXMLController implements Initializable {
     public void calculate(){
         char operation = operationLabel.getText().charAt(0); 
         String sFirstNumber = firstNumberTextField.getText().trim(), sSecondNumber = secondNumberTextField.getText().trim();
-        if(sFirstNumber.matches("[0-9]([\\.][0-9]+|[0-9]*)") && sSecondNumber.matches("[0-9]([\\.][0-9]+|[0-9]*)")){
+        if(sFirstNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)") && sSecondNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)")){
             BigDecimal firstNumber = BigDecimal.valueOf(Double.parseDouble(sFirstNumber)),
                     secondNumber = BigDecimal.valueOf(Double.parseDouble(sSecondNumber));
             switch(operation){
