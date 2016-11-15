@@ -26,7 +26,6 @@ public class CalculatorFXMLController implements Initializable {
     private TextField firstNumberTextField, secondNumberTextField, resultTextField;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
         additionRadioButton.setOnAction(event -> {
             operationLabel.setText("+");
             calculate();
@@ -53,31 +52,39 @@ public class CalculatorFXMLController implements Initializable {
     /**
      * Wykonuje wybrane działanie. Aktualne działanie jest wyświetlone jako etykieta
      * pomiędzy wprowadzonymi wartościami liczbowymi. Wyświetla komunikat w przypadku wprowadzenia
-     * niedozwolonych wartości (innych niż liczby całkowite lub zmiennoprzecinkowe). 
+     * niedozwolonych wartości (innych niż liczby całkowite lub zmiennoprzecinkowe).
+     * Puste pole nie jest uznawane jako błąd, po prostu działanie nie jest wykonywane. 
+     * Dzięki zastosowaniu klasy BigDecimal, metoda jest w stanie wykonywać działania na dużych liczbach. 
      */
     public void calculate(){
         char operation = operationLabel.getText().charAt(0); 
         String sFirstNumber = firstNumberTextField.getText().trim(), sSecondNumber = secondNumberTextField.getText().trim();
-        if(sFirstNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)") && sSecondNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)")){
-            BigDecimal firstNumber = BigDecimal.valueOf(Double.parseDouble(sFirstNumber)),
-                    secondNumber = BigDecimal.valueOf(Double.parseDouble(sSecondNumber));
-            switch(operation){
-                case '+':
-                    resultTextField.setText((firstNumber.add(secondNumber)).toString());
-                    break;
-                case '-':
-                    resultTextField.setText((firstNumber.subtract(secondNumber)).toString());
-                    break;
-                case '*':
-                    resultTextField.setText((firstNumber.multiply(secondNumber)).toString());
-                    break;
-                case '/':
-                    resultTextField.setText((firstNumber.divide(secondNumber, MathContext.DECIMAL128)).toString());
+        if(!sFirstNumber.equals("") && !sSecondNumber.equals("")) // sprawdza czy pola nie są puste 
+            if(sFirstNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)") && sSecondNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)")){ // czy pole jest liczbą całkowitą/zmiennoprzecinkową 
+                BigDecimal firstNumber = BigDecimal.valueOf(Double.parseDouble(sFirstNumber)),
+                        secondNumber = BigDecimal.valueOf(Double.parseDouble(sSecondNumber));
+                switch(operation){
+                    case '+':
+                        resultTextField.setText((firstNumber.add(secondNumber)).toString());
+                        break;
+                    case '-':
+                        resultTextField.setText((firstNumber.subtract(secondNumber)).toString());
+                        break;
+                    case '*':
+                        resultTextField.setText((firstNumber.multiply(secondNumber)).toString());
+                        break;
+                    case '/':
+                        resultTextField.setText((firstNumber.divide(secondNumber, MathContext.DECIMAL128)).toString());
+                }
+            }else{
+                /* czy liczba jest złożona z mieszanki znaków różnych od znaków białych i samych znaków białych.
+                Dzieki wcześniejszym zastosowaniu trim, białe znaki na końcu i na początku nie są brane pod uwagę. 
+                Przykładowo, błędy pojawią się w takich sytuacjach: 234 3, 2k123, 2a, abc, a b c itd. 
+                */
+                if(sFirstNumber.matches("[\\S\\s]*") || sSecondNumber.matches("[\\S\\s]*")){
+                    resultTextField.setText("Niedozwolony znak!");
+                }
             }
-        }else{
-            if(sFirstNumber.matches("\\S+") || sSecondNumber.matches("\\S+") || sFirstNumber.matches("[\\S\\s]+") || sSecondNumber.matches("[\\S\\s]+")){
-                resultTextField.setText("Niedozwolony znak!");
-            }
-        }
     }
 }
+
