@@ -52,15 +52,17 @@ public class CalculatorFXMLController implements Initializable {
     /**
      * Wykonuje wybrane działanie. Aktualne działanie jest wyświetlone jako etykieta
      * pomiędzy wprowadzonymi wartościami liczbowymi. Wyświetla komunikat w przypadku wprowadzenia
-     * niedozwolonych wartości (innych niż liczby całkowite lub zmiennoprzecinkowe).
+     * niedozwolonych wartości (innych niż liczby całkowite lub zmiennoprzecinkowe - części oddzielone kropką).
+     * Dostępne są również wartości ujemne. Metoda ostrzega przed dzieleniem przez zero. 
      * Puste pole nie jest uznawane jako błąd, po prostu działanie nie jest wykonywane. 
      * Dzięki zastosowaniu klasy BigDecimal, metoda jest w stanie wykonywać działania na dużych liczbach. 
      */
     public void calculate(){
+        resultTextField.setText("");
         char operation = operationLabel.getText().charAt(0); 
         String sFirstNumber = firstNumberTextField.getText().trim(), sSecondNumber = secondNumberTextField.getText().trim();
         if(!sFirstNumber.equals("") && !sSecondNumber.equals("")) // sprawdza czy pola nie są puste 
-            if(sFirstNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)") && sSecondNumber.matches("[0-9]+(\\.[0-9]+|[0-9]*)")){ // czy pole jest liczbą całkowitą/zmiennoprzecinkową 
+            if(sFirstNumber.matches("-?[0-9]+(\\.[0-9]+|[0-9]*)") && sSecondNumber.matches("-?[0-9]+(\\.[0-9]+|[0-9]*)")){ // czy pole jest liczbą całkowitą/zmiennoprzecinkową 
                 BigDecimal firstNumber = BigDecimal.valueOf(Double.parseDouble(sFirstNumber)),
                         secondNumber = BigDecimal.valueOf(Double.parseDouble(sSecondNumber));
                 switch(operation){
@@ -74,16 +76,12 @@ public class CalculatorFXMLController implements Initializable {
                         resultTextField.setText((firstNumber.multiply(secondNumber)).toString());
                         break;
                     case '/':
-                        resultTextField.setText((firstNumber.divide(secondNumber, MathContext.DECIMAL128)).toString());
+                        if(!secondNumber.equals(BigDecimal.valueOf(0D)))
+                            resultTextField.setText((firstNumber.divide(secondNumber, MathContext.DECIMAL128)).toString());
+                        else resultTextField.setText("Nie dziel przez 0");
                 }
             }else{
-                /* czy liczba jest złożona z mieszanki znaków różnych od znaków białych i samych znaków białych.
-                Dzieki wcześniejszym zastosowaniu trim, białe znaki na końcu i na początku nie są brane pod uwagę. 
-                Przykładowo, błędy pojawią się w takich sytuacjach: 234 3, 2k123, 2a, abc, a b c itd. 
-                */
-                if(sFirstNumber.matches("[\\S\\s]*") || sSecondNumber.matches("[\\S\\s]*")){
-                    resultTextField.setText("Niedozwolony znak!");
-                }
+                    resultTextField.setText("Niedozwolony zapis!"); // niedowzwolone np.: 243 3, 2k123, 2a, abc, a b c itd. 
             }
     }
 }
